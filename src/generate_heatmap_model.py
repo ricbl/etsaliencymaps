@@ -20,7 +20,7 @@ import numpy as np
 from collections import OrderedDict
 from PIL import Image
 import cv2
-
+from config_paths import eyetracking_dataset_path
 from .dataset import val_transform, pre_process_path
 from .get_model import get_model
 import imageio
@@ -77,7 +77,7 @@ class HeatmapGenerator():
         elif(mode=='uniform'):
             label_indices = range(len(pred_global[0]))
             weights =[1]*len(pred_global[0])
-        elif(mode=='thresh_0.5'):
+        elif(mode=='thresholded'):
             label_indices = torch.where(pred_global[0]>=0)[0]
             if(len(label_indices)==0):
                 label_indices = [0]
@@ -145,31 +145,31 @@ class HeatmapGenerator():
         im.save(f'{folder_to_save}/{self.mode}/{model_name}/phase_{phase}_0.98' + '/' + str(trial) + 'or.png')
         
         if model_name == 'ag_sononet':
-            att1, att2 = self.model.get_attentions()
-            att1_np = att1.detach().cpu().numpy()
-            att1_np = cv2.resize(att1_np, (max(shape), max(shape)))
-            att1_np = crop_or_pad_to(att1_np, shape)
-            assert(att1_np.shape == shape)
-            info_dict = {'np_image': att1_np, 'img_path': pathImageFile, 'trial': trial}
+            am1, am2 = self.model.get_attentions()
+            am1_np = am1.detach().cpu().numpy()
+            am1_np = cv2.resize(am1_np, (max(shape), max(shape)))
+            am1_np = crop_or_pad_to(am1_np, shape)
+            assert(am1_np.shape == shape)
+            info_dict = {'np_image': am1_np, 'img_path': pathImageFile, 'trial': trial}
             import pathlib
             pathlib.Path(f'{folder_to_save}/{self.mode}/{model_name}/phase_{phase}_0.98' + '/').mkdir(parents=True, exist_ok=True) 
-            np.save(f'{folder_to_save}/{self.mode}/{model_name}/phase_{phase}_0.98' + '/' + str(trial)+ '_att1', info_dict)
-            im = Image.fromarray((att1_np-np.min(att1_np))/(np.max(att1_np)-np.min(att1_np))*255).convert('RGB')
+            np.save(f'{folder_to_save}/{self.mode}/{model_name}/phase_{phase}_0.98' + '/' + str(trial)+ '_am1', info_dict)
+            im = Image.fromarray((am1_np-np.min(am1_np))/(np.max(am1_np)-np.min(am1_np))*255).convert('RGB')
             
-            im.save(f'{folder_to_save}/{self.mode}/{model_name}/phase_{phase}_0.98' + '/' + str(trial) + '_att1.png')
+            im.save(f'{folder_to_save}/{self.mode}/{model_name}/phase_{phase}_0.98' + '/' + str(trial) + '_am1.png')
             
-            att2_np = att2.detach().cpu().numpy()
-            att2_np = cv2.resize(att2_np, (max(shape), max(shape)))
-            att2_np = crop_or_pad_to(att2_np, shape)
-            assert(att2_np.shape == shape)
-            info_dict = {'np_image': att2_np, 'img_path': pathImageFile, 'trial': trial}
+            am2_np = am2.detach().cpu().numpy()
+            am2_np = cv2.resize(am2_np, (max(shape), max(shape)))
+            am2_np = crop_or_pad_to(am2_np, shape)
+            assert(am2_np.shape == shape)
+            info_dict = {'np_image': am2_np, 'img_path': pathImageFile, 'trial': trial}
             import pathlib
             pathlib.Path(f'{folder_to_save}/{self.mode}/{model_name}/phase_{phase}_0.98' + '/').mkdir(parents=True, exist_ok=True) 
-            np.save(f'{folder_to_save}/{self.mode}/{model_name}/phase_{phase}_0.98' + '/' + str(trial) + '_att2', info_dict)
-            im = Image.fromarray((att2_np-np.min(att2_np))/(np.max(att2_np)-np.min(att2_np))*255).convert('RGB')
-            im.save(f'{folder_to_save}/{self.mode}/{model_name}/phase_{phase}_0.98' + '/' + str(trial) + '_att2.png')
+            np.save(f'{folder_to_save}/{self.mode}/{model_name}/phase_{phase}_0.98' + '/' + str(trial) + '_am2', info_dict)
+            im = Image.fromarray((am2_np-np.min(am2_np))/(np.max(am2_np)-np.min(am2_np))*255).convert('RGB')
+            im.save(f'{folder_to_save}/{self.mode}/{model_name}/phase_{phase}_0.98' + '/' + str(trial) + '_am2.png')
             
-            assert(att2_np.shape == shape)
+            assert(am2_np.shape == shape)
 
 # ## Get list of images from phase 1 and phase 2
 def get_filepaths(filename_edf):
@@ -201,17 +201,15 @@ def generate_heatmaps(model_name, method_mixing):
     h = HeatmapGenerator(model, method_mixing)
 
     ## phase 1
-    collected_data_path = './dataset/'
     file_phase = 'metadata_phase_1.csv'
-    run_one_phase(1, collected_data_path+file_phase, model_name, h)
+    run_one_phase(1, eyetracking_dataset_path+file_phase, model_name, h)
     ## phase 2
-    collected_data_path = './dataset/'
     file_phase = 'metadata_phase_2.csv'
-    run_one_phase(2, collected_data_path + file_phase, model_name, h)
+    run_one_phase(2, eyetracking_dataset_path + file_phase, model_name, h)
 
 generate_heatmaps('ag_sononet', 'weighted_classes')
 generate_heatmaps('sononet', 'weighted_classes')
-generate_heatmaps('sononet', 'thresh_0.5')
-generate_heatmaps('ag_sononet', 'thresh_0.5')
+generate_heatmaps('sononet', 'thresholded')
+generate_heatmaps('ag_sononet', 'thresholded')
 generate_heatmaps('sononet', 'uniform')
 generate_heatmaps('ag_sononet', 'uniform')

@@ -8,7 +8,7 @@ import pandas as pd
 import torchvision.transforms as transforms
 from sklearn.metrics import roc_auc_score
 import math
-from .mimic_paths import jpg_path, h5_path
+from .config_paths import jpg_path, h5_path
 
 num_workers = 12
 
@@ -36,7 +36,7 @@ def get_auc(y, y_pred):
     return auc_list
 
 def pre_process_path(dicom_path):
-    temp_path = jpg_path + dicom_path.split('files')[-1]
+    temp_path = jpg_path + '/physionet.org/files/' + dicom_path.split('files')[-1]
     temp_path = temp_path.replace('.dcm', '.jpg')
     return temp_path.strip()
 

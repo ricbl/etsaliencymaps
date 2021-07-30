@@ -12,7 +12,8 @@ import skimage
 import math
 from skimage.segmentation import flood_fill
 import os
-from .mimic_paths import dicom_path
+from .config_paths import dicom_path, eyetracking_dataset_path
+import pathlib
 
 class UNet(nn.Module):
     def __init__(self, num_channels=1):
@@ -175,7 +176,7 @@ class XRayResizerPad(object):
         pad_width = (-np.array(img.shape[1:])+max(np.array(img.shape[1:])))/2
         return np.pad(img, ((0,0),(math.ceil(pad_width[0]),math.floor(pad_width[0])),(math.ceil(pad_width[1]),math.floor(pad_width[1]))))
 
-class BBoxDataset(torch.utils.data.Dataset):
+class SegmentationDataset(torch.utils.data.Dataset):
     def __init__(self, metadata_dataset):
         results_csv = pd.read_csv(metadata_dataset).sort_values(['image'])
         results_csv = results_csv[results_csv['eye_tracking_data_discarded']==False]
@@ -192,8 +193,9 @@ class BBoxDataset(torch.utils.data.Dataset):
         return x, np.array([ord(c) for c in self.dicoms[index].split('/')[-1][:-4]]),np.array(original_size)
 
 def main(phase):
-    dataloader = torch.utils.data.DataLoader(BBoxDataset(f'dataset/metadata_phase_{phase}.csv'))
+    dataloader = torch.utils.data.DataLoader(SegmentationDataset(f'{eyetracking_dataset_path}/metadata_phase_{phase}.csv'))
     segmentation_model = SegmentationNetwork()
+    pathlib.Path('segmentations_convex').mkdir(parents=True, exist_ok=True) 
     for x, id, original_size in dataloader:
         segmentation = segmentation_model(x)
         crop_size = (segmentation[0,0,:,:].size()-original_size[0].numpy()/max(original_size[0].numpy())*256)/2

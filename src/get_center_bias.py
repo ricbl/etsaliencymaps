@@ -5,17 +5,18 @@ import glob
 from PIL import Image
 import os.path
 import math
+from config_paths import eyetracking_dataset_path
 
 #open results file and get all bounding boxes and image sizes
 tables_boxes = pd.DataFrame()
 for phase in [1,2]:
-    metadata_file = pd.read_csv(f'dataset/metadata_phase_{phase}.csv').sort_values(['image'])
+    metadata_file = pd.read_csv(f'{eyetracking_dataset_path}/metadata_phase_{phase}.csv').sort_values(['image'])
     metadata_file = metadata_file[metadata_file['eye_tracking_data_discarded']==False]
     all_images = metadata_file['image'].unique()
     for index, image_filepath in enumerate(all_images):
         rows_this_image = metadata_file[metadata_file['image']==image_filepath]
         for _, row in rows_this_image.iterrows():
-            chest_box_table = pd.read_csv(f'dataset/{row["id"]}/chest_bounding_box.csv')
+            chest_box_table = pd.read_csv(f'{eyetracking_dataset_path}/{row["id"]}/chest_bounding_box.csv')
             chest_box_table['xmin'].values[0]
             tables_boxes = tables_boxes.append({'trial':index, 'image_size_x': row['image_size_x'],'image_size_y': row['image_size_y'],'phase': phase, 'ChestBox (Rectangle) coord 0': chest_box_table['xmin'].values[0], 'ChestBox (Rectangle) coord 1': chest_box_table['ymin'].values[0], 'ChestBox (Rectangle) coord 2': chest_box_table['xmax'].values[0], 'ChestBox (Rectangle) coord 3': chest_box_table['ymax'].values[0] }, ignore_index=True)
 assert(len(tables_boxes)==525)

@@ -10,8 +10,8 @@
 import pandas as pd
 import os
 import numpy as np
-from mimic_paths import jpg_path
-from mimic_paths import mimic_tables_dir as mimic_dir
+from config_paths import jpg_path, eyetracking_dataset_path
+from config_paths import mimic_tables_dir as mimic_dir
 
 label_csv = os.path.join(mimic_dir + 'mimic-cxr-2.0.0-chexpert.csv')
 label_df = pd.read_csv(label_csv)
@@ -30,7 +30,7 @@ def getImgList(image_path, jpg_path):
     with open(image_path) as f:
         image_list = f.readlines()
     for path in image_list:
-        temp_path = jpg_path + path.split('files')[-1]
+        temp_path = jpg_path + '/physionet.org/files/' + path.split('files')[-1]
         temp_path = temp_path.replace('.dcm', '.jpg')
         image_list_jpg.append(temp_path.strip())
     return image_list_jpg
@@ -69,12 +69,12 @@ test_df = test_df.drop('split', axis=1)
 # ### Getting the list of images which are shown to radiologists in Phase 1 and Phase 2
 
 # Phase 1
-collected_data_phase_1_path = 'dataset/metadata_phase_1.csv'
+collected_data_phase_1_path = f'{eyetracking_dataset_path}/metadata_phase_1.csv'
 
 phase_1_list = pd.read_csv(collected_data_phase_1_path)['subject_id'].unique()
 
 # Phase 2
-collected_data_phase_2_path = 'dataset/metadata_phase_2.csv'
+collected_data_phase_2_path = f'{eyetracking_dataset_path}/metadata_phase_2.csv'
 
 phase_2_list = pd.read_csv(collected_data_phase_2_path)['subject_id'].unique()
 

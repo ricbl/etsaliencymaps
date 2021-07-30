@@ -93,8 +93,8 @@ def get_average_et_scores(i, case, averageuser_df, mixing_method, metrics):
         average_et = np.average(np.stack(et_heatmaps.values(), axis = 0), axis = 0)
         heatmaps_path = [f'./{model_heatmaps_folder}/{mixing_method}/sononet/phase_{phase}_0.98/{this_trial}.npy',
         f'./{model_heatmaps_folder}/{mixing_method}/ag_sononet/phase_{phase}_0.98/{this_trial}.npy',
-        f'./{model_heatmaps_folder}/{mixing_method}/ag_sononet/phase_{phase}_0.98/{this_trial}_att1.npy',
-        f'./{model_heatmaps_folder}/{mixing_method}/ag_sononet/phase_{phase}_0.98/{this_trial}_att2.npy',
+        f'./{model_heatmaps_folder}/{mixing_method}/ag_sononet/phase_{phase}_0.98/{this_trial}_am1.npy',
+        f'./{model_heatmaps_folder}/{mixing_method}/ag_sononet/phase_{phase}_0.98/{this_trial}_am2.npy',
         ]
         
         previous_image_path = None
@@ -121,7 +121,7 @@ def get_average_et_scores(i, case, averageuser_df, mixing_method, metrics):
                 average_other_users = np.average(np.stack(other_user_ets, axis = 0), axis = 0)
                 
                 if save_images:
-                    for index_map, map in {'user':this_user_et, 'other_users':average_other_users, 'convex':np_images[4], 'average':et_base, 'sonocam':np_images[0], 'agcam':np_images[1], 'att1':np_images[2], 'att2':np_images[3]}.items():
+                    for index_map, map in {'user':this_user_et, 'other_users':average_other_users, 'convex':np_images[4], 'center_bias':et_base, 'sonocam':np_images[0], 'agcam':np_images[1], 'am1':np_images[2], 'am2':np_images[3]}.items():
                         plt.imshow(plt.imread(previous_image_path), cmap='gray')
                         plt.imshow(map, cmap='jet', alpha = 0.3)
                         plt.axis('off')
@@ -131,16 +131,16 @@ def get_average_et_scores(i, case, averageuser_df, mixing_method, metrics):
                     user_user_score = metric_fn(average_other_users, this_user_et, et_base)
                     score_sono_4= metric_fn(average_other_users, np_images[0], et_base)
                     score_ag_4= metric_fn(average_other_users, np_images[1], et_base)
-                    score_att1_4 = metric_fn(average_other_users, np_images[2], et_base)
-                    score_att2_4 = metric_fn(average_other_users, np_images[3], et_base)
+                    score_am1_4 = metric_fn(average_other_users, np_images[2], et_base)
+                    score_am2_4 = metric_fn(average_other_users, np_images[3], et_base)
                     score_convex_4 = metric_fn(average_other_users, np_images[4],et_base)
-                    results_averageintrauser_df.append({'trial':trial,'phase':phase,'index_image':index_image, 'metric':metric,'userscore':user_user_score,'score_sono':score_sono_4, 'score_ag':score_ag_4 , 'score_att1':score_att1_4, 'score_att2':score_att2_4, 'score_convex':score_convex_4})
+                    results_averageintrauser_df.append({'trial':trial,'phase':phase,'index_image':index_image, 'metric':metric,'score_interobserver':user_user_score,'score_sono':score_sono_4, 'score_ag':score_ag_4 , 'score_am1':score_am1_4, 'score_am2':score_am2_4, 'score_convex':score_convex_4})
     return results_averageintrauser_df
 
 def main():
-    metrics = { 'sncc':shuffled_normalised_corr, 'ncc':normalised_corr, 'smauc':smooth_auc, 'ssmauc':smooth_shuffled_auc, }
+    metrics = { 'sncc':shuffled_normalised_corr, 'ncc':normalised_corr, 'auc':smooth_auc, 'sauc':smooth_shuffled_auc, }
     
-    mixing_methods = ['uniform','weighted_classes', 'thresh_0.5']
+    mixing_methods = ['uniform','weighted_classes', 'thresholded']
     # ### Heatmaps from radiologists' eyetracking data
     def sorter(item):
         return f'{int(item.split("/")[-1].split("_")[0]):04}{item.split("/")[-1].split("_")[1]}'
@@ -158,7 +158,7 @@ def main():
         cases = pd.unique(averageuser_df['case'])
         list_average_intrauser = Parallel(n_jobs=1)(delayed(get_average_et_scores)(i,case, averageuser_df, mixing_method,metrics) for i,case in enumerate(cases))
         list_average_intrauser = [item for sublist in list_average_intrauser for item in sublist]
-        pd.DataFrame(list_average_intrauser).to_csv(f'{output_folder}/results_averageintrauser_{mixing_method}_df.csv', index=False)
+        pd.DataFrame(list_average_intrauser).to_csv(f'{output_folder}/results_{mixing_method}_df.csv', index=False)
 
 if __name__ == "__main__":
    main()

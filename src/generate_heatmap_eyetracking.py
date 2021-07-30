@@ -6,7 +6,7 @@ import numpy as np
 from scipy.stats import multivariate_normal
 import csv
 import pathlib
-from .mimic_paths import jpg_path
+from .config_paths import jpg_path, eyetracking_dataset_path
 
 def get_gaussian(y,x,sy,sx, sizey,sizex, shown_rects_image_space):
     mu = [y-shown_rects_image_space[1],x-shown_rects_image_space[0]]
@@ -58,22 +58,20 @@ def create_heatmaps(data_folder, filename_phase, folder_name='heatmaps'):
             index_image += 1
 
 def pre_process_path(dicom_path):
-    temp_path = jpg_path + dicom_path.split('files')[-1]
+    temp_path = jpg_path + '/physionet.org/files/' dicom_path.split('files')[-1]
     temp_path = temp_path.replace('.dcm', '.jpg')
     return temp_path.strip()
 
 # # ### Phase 1
 print('Starting Phase 1...')
-collected_data_path = './dataset/'
 file_phase_1 = 'metadata_phase_1.csv'
 
-create_heatmaps(collected_data_path ,file_phase_1, 
+create_heatmaps(eyetracking_dataset_path ,file_phase_1, 
                 folder_name='heatmaps_phase_1_1')
 
 # ### Phase 2
 print('Starting Phase 2...')
-collected_data_path = './dataset/'
 file_phase_2 = 'metadata_phase_2.csv'
 
-create_heatmaps(collected_data_path, file_phase_2,
+create_heatmaps(eyetracking_dataset_path, file_phase_2,
                       folder_name='heatmaps_phase_2_1')
