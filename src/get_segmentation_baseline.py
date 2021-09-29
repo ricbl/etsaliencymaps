@@ -12,7 +12,7 @@ import skimage
 import math
 from skimage.segmentation import flood_fill
 import os
-from .config_paths import dicom_path, eyetracking_dataset_path
+from .config_paths import dicom_path, eyetracking_dataset_path, segmentation_model_path
 import pathlib
 
 class UNet(nn.Module):
@@ -212,7 +212,7 @@ class SegmentationNetwork(nn.Module):
     def __init__(self):
         super(SegmentationNetwork, self).__init__()
         self.segmentation = self.get_segmentation
-        model_name = '/home/sci/ricbl/Documents/projects/vagan/lung-segmentation-2d/trained_model.hdf5'    
+        model_name = f'{segmentation_model_path}/trained_model.hdf5'    
         self.unet = load_model(model_name)
         self.UNet = lambda x: self.unet.predict(x)
     
