@@ -187,7 +187,7 @@ class SegmentationDataset(torch.utils.data.Dataset):
         return self.length
     
     def __getitem__(self, index):
-        x = open_dicom(dicom_path + self.dicoms[index].split('physionet.org')[-1])
+        x = open_dicom(dicom_path + '/physionet.org/' + self.dicoms[index].split('physionet.org')[-1])
         original_size = x.shape
         x = XRayResizerPad(256, max)(x[None,...])[0,...]
         return x, np.array([ord(c) for c in self.dicoms[index].split('/')[-1][:-4]]),np.array(original_size)

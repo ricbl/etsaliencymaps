@@ -10,8 +10,8 @@
 import pandas as pd
 import os
 import numpy as np
-from config_paths import jpg_path, eyetracking_dataset_path
-from config_paths import mimic_tables_dir as mimic_dir
+from .config_paths import jpg_path, eyetracking_dataset_path
+from .config_paths import mimic_tables_dir as mimic_dir
 
 label_csv = os.path.join(mimic_dir + 'mimic-cxr-2.0.0-chexpert.csv')
 label_df = pd.read_csv(label_csv)

@@ -6,7 +6,7 @@ Steps to reproduce the results of the paper:
 python src/download_mimic.py --username=<your physionet username>
 ```
 - Download trained_model.hdf5 from https://github.com/imlab-uiip/lung-segmentation-2d and put in a folder named segmentation_model in the root of the git repository.
-- Download the eye-tracking dataset from ... and put in a folder named dataset_et in the root of the git repository.
+- Download the eye-tracking dataset ([https://physionet.org/content/reflacx-xray-localization/1.0.0/](https://physionet.org/content/reflacx-xray-localization/1.0.0/)) and put main_folder in a folder named dataset_et in the root of the git repository.
 - Check that the folders listed in the config_paths.py files are correct for your setup.
 - Run the following scripts:
 ```
@@ -25,7 +25,7 @@ python -m src.generate_heatmap_model --folder_to_load=models_to_test --folder_to
 ```
 python -m src.compare_heatmaps --load_folder=heatmaps_model --save_folder=results
 ```
-- The generated csv files list the scores for each of the test examples. There is one csv file for each of the 3 methods: Thresholded, Weighted, Uniform. In all 3 csv files, the results for the baselines inter-observer and convex segmentation are the same. The results for the attention maps are the same in the 3 csv files too.
+- The generated csv files list the scores for each of the test examples. There is one csv file for each of the 3 methods: Thresholded, Weighted, Uniform. In all 3 csv files, the results for the baselines interobserver and convex segmentation are the same. The results for the attention maps are the same in the 3 csv files too.
 - To get the AUC classification scores listed by the end of section 3.2, run:
 ```
 python -m src.train -m sononet -ep 1 -ex test_auc_sononet -v test -l ./runs/<folder of the run you would like to test>/sononet/best_model.pt -bs 1
@@ -33,3 +33,30 @@ python -m src.train -m ag_sononet -ep 1 -ex test_auc_ag_sononet -v test -l ./run
 ```
 - The AUC values will be in the folders ./runs/test_auc_sononet_<timestamp>/sononet/logs.csv and ./runs/test_auc_ag_sononet_<timestamp>/ag_sononet/logs.csv
 - For the numbers of both AUC and Table 1 included in the paper, there are xlsx files included in the folder results_tables_paper with combined results of 5 models with different random seeds.
+
+## Requirements
+For the `get_segmentation_baseline.py` script:
+- python 3.6.7
+- tensorflow-gpu 1.12.0
+- keras 2.1.6
+- scikit-image 0.17.2
+- pytorch 1.5.1
+- pandas 1.0.3
+- pydicom 2.0.0
+- cudatoolkit 9.2
+- h5py 2.8.0
+
+For all other scripts:
+- python 3.9.4
+- opencv-python 4.5.2.54
+- numpy 1.20.3
+- pytorch 1.8.1
+- pillow 8.2.0
+- imageio 2.9.0
+- scikit-learn 0.24.2
+- torchvision 0.9.1
+- scipy 1.6.3
+- opencv-python 4.5.2.54
+- scikit-image 0.18.1
+- h5py 3.2.1
+- cudatoolkit 10.2.89

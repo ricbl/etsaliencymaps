@@ -26,7 +26,7 @@ def create_heatmap(sequence_table, size_x, size_y):
     for index, row in sequence_table.iterrows():
         angle_circle = 1
         shown_rects_image_space = [round(row['xmin_shown_from_image']) ,round(row['ymin_shown_from_image']),round(row['xmax_shown_from_image']),round(row['ymax_shown_from_image'])]
-        gaussian = get_gaussian(row['average_y_position'],row['average_x_position'], row['angular_resolution_y_pixels_per_degree']*angle_circle, row['angular_resolution_x_pixels_per_degree']*angle_circle, size_y,size_x, shown_rects_image_space)
+        gaussian = get_gaussian(row['y_position'],row['x_position'], row['angular_resolution_y_pixels_per_degree']*angle_circle, row['angular_resolution_x_pixels_per_degree']*angle_circle, size_y,size_x, shown_rects_image_space)
         img += gaussian*(row['timestamp_end_fixation']-row['timestamp_start_fixation'])
     return img/np.sum(img)
 
@@ -58,7 +58,7 @@ def create_heatmaps(data_folder, filename_phase, folder_name='heatmaps'):
             index_image += 1
 
 def pre_process_path(dicom_path):
-    temp_path = jpg_path + '/physionet.org/files/' dicom_path.split('files')[-1]
+    temp_path = jpg_path + '/physionet.org/files/' + dicom_path.split('files')[-1]
     temp_path = temp_path.replace('.dcm', '.jpg')
     return temp_path.strip()
 

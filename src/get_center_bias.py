@@ -5,7 +5,9 @@ import glob
 from PIL import Image
 import os.path
 import math
-from config_paths import eyetracking_dataset_path
+from .config_paths import eyetracking_dataset_path
+
+np.seterr(divide='ignore', invalid='ignore')
 
 #open results file and get all bounding boxes and image sizes
 tables_boxes = pd.DataFrame()

@@ -23,14 +23,14 @@ parser.add_argument('--username', type=str, required=True,
                     help='PhysioNet username')
 args = parser.parse_args()
 
-# download_mimic_files_from_list(args.username, get_list_images_dicom(1) + get_list_images_dicom(2), dicom_path)
+download_mimic_files_from_list(args.username, get_list_images_dicom(1) + get_list_images_dicom(2), dicom_path)
 
 list_jpg = []
 with open('image_all_paths.txt') as f:
     for line in f:
         list_jpg.append(line.rstrip())
 
-# download_mimic_files_from_list(args.username, list_jpg, jpg_path)
+download_mimic_files_from_list(args.username, list_jpg, jpg_path)
 
 tables = ['physionet.org/files/mimic-cxr-jpg/2.0.0/mimic-cxr-2.0.0-chexpert.csv.gz',
 'physionet.org/files/mimic-cxr-jpg/2.0.0/mimic-cxr-2.0.0-split.csv.gz']

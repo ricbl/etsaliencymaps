@@ -85,7 +85,6 @@ class ToNumpy(object):
     def __init__(self):
         pass
     def __call__(self, tensor):
-        print(np.array(tensor).shape)
         return np.array(tensor)
 
 class GrayToThree(object):

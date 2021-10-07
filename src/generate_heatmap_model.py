@@ -20,7 +20,7 @@ import numpy as np
 from collections import OrderedDict
 from PIL import Image
 import cv2
-from config_paths import eyetracking_dataset_path
+from .config_paths import eyetracking_dataset_path
 from .dataset import val_transform, pre_process_path
 from .get_model import get_model
 import imageio
