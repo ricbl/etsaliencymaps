@@ -3,7 +3,7 @@ from torch.utils.data import Dataset
 import numpy as np
 import imageio
 from PIL import Image
-from .utils_dataset import TransformsDataset, H5Dataset
+from .utils_dataset import TransformsDataset, H5Dataset, LoadToMemory
 import pandas as pd
 import torchvision.transforms as transforms
 from sklearn.metrics import roc_auc_score
@@ -138,13 +138,18 @@ post_transform_train = [
 
 def get_dataset(val_split):
     train_df, val_df, test_df = get_train_val_dfs()
-    
     if val_split == 'test':
-        valset = TransformsDataset(H5Dataset(TransformsDataset(MIMICCXRDataset(test_df), pre_transform_val),path = h5_path, filename = 'test_dataset'),post_transform_val)
+        valset = TransformsDataset(H5Dataset(lambda: LoadToMemory(
+                TransformsDataset(MIMICCXRDataset(test_df), pre_transform_val)
+            ,parallel=True),path = h5_path, filename = 'test_dataset', individual_datasets = True),post_transform_val)
     if val_split == 'val':
-        valset = TransformsDataset(H5Dataset(TransformsDataset(MIMICCXRDataset(val_df), pre_transform_val),path = h5_path, filename = 'val_dataset'),post_transform_val)
+        valset = TransformsDataset(H5Dataset(lambda: LoadToMemory(
+                TransformsDataset(MIMICCXRDataset(val_df), pre_transform_val)
+            ,parallel=True),path = h5_path, filename = 'val_dataset', individual_datasets = True),post_transform_val)
     
-    trainset = TransformsDataset(H5Dataset(TransformsDataset(MIMICCXRDataset(train_df), pre_transform_train),path = h5_path, filename = 'train_dataset'),post_transform_train)#TEMP:opt
+    trainset = TransformsDataset(H5Dataset(lambda: LoadToMemory(
+            TransformsDataset(MIMICCXRDataset(train_df), pre_transform_train)
+        ,parallel=True),path = h5_path, filename = 'train_dataset', individual_datasets = True),post_transform_train)#TEMP:opt
     
     train_loader = torch.utils.data.DataLoader(trainset, num_workers=num_workers, shuffle=True,
                                           batch_size=64, pin_memory=True)

@@ -26,13 +26,23 @@ python -m src.generate_heatmap_model --folder_to_load=models_to_test --folder_to
 python -m src.compare_heatmaps --load_folder=heatmaps_model --save_folder=results
 ```
 - The generated csv files list the scores for each of the test examples. There is one csv file for each of the 3 methods: Thresholded, Weighted, Uniform. In all 3 csv files, the results for the baselines interobserver and convex segmentation are the same. The results for the attention maps are the same in the 3 csv files too.
-- To get the AUC classification scores listed by the end of section 3.2, run:
+- To get the AUC classification scores listed by the end of section 3.1, run:
 ```
 python -m src.train -m sononet -ep 1 -ex test_auc_sononet -v test -l ./runs/<folder of the run you would like to test>/sononet/best_model.pt -bs 1
 python -m src.train -m ag_sononet -ep 1 -ex test_auc_ag_sononet -v test -l ./runs/<folder of the run you would like to test>/ag_sononet/best_model.pt -bs 1
 ```
 - The AUC values will be in the folders ./runs/test_auc_sononet_<timestamp>/sononet/logs.csv and ./runs/test_auc_ag_sononet_<timestamp>/ag_sononet/logs.csv
-- For the numbers of both AUC and Table 1 included in the paper, there are xlsx files included in the folder results_tables_paper with combined results of 5 models with different random seeds.
+- For the numbers of AUC, Table 1, Table 2, Table 4, and Table 5, there are xlsx files included in the folder results_tables_paper with combined results of 5 models with different random seeds.
+- To get the results from Table 3, join the outputs of all 5 models from the compare_heatmaps script into the uniform_all_models_majority.csv file, adding a column named model, with models numbered from 1 to 5. Then, run:
+```
+python src/multiple_linear_regression.py
+```
+Results will be in the multiple_variable_linear_regression_coefficients.csv file.
+- To get the numbers from Tables 4 and 5, run:
+```
+python src/generate_table_ellipse_statistics.py
+```
+Results will be in the ellipses_statistics_by_label.csv file.
 
 ## Requirements
 For the `get_segmentation_baseline.py` script:
@@ -60,3 +70,5 @@ For all other scripts:
 - scikit-image 0.18.1
 - h5py 3.2.1
 - cudatoolkit 10.2.89
+- statsmodels 0.13.1
+- shapely 1.8.0
